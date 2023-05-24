@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePostRequest;
-use App\Http\Requests\UpdatePostRequest;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Type;
 use App\Models\Project;
-use Illuminate\Http\Request;
+//use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
@@ -40,9 +40,20 @@ class ProjectController extends Controller
          * @param  \Illuminate\Http\Request  $request
          * @return \Illuminate\Http\Response
          */
-        public function store(Request $request)
+        public function store(StoreProjectRequest $request)
         {
-            //
+            $validated_data = $request->validated();
+
+            $validated_data['slug'] = Project::generateSlug($request->title);
+
+            $checkProject = Project::where('slug', $validated_data['slug'])->first();
+            if ($checkProject) {
+                return back()->withInput()->withErrors(['slug' => 'Impossibile creare lo slug per questo progetto, cambia il titolo']);
+            }
+
+            $newProject = Project::create($validated_data);
+
+            return redirect()->route('admin.projects.show', ['project' => $newProject->slug])->with('status', 'Progetto creato con successo!');
         }
     
         /**
