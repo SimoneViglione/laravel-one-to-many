@@ -15,7 +15,7 @@ class Project extends Model
         'cover_image',
         'content',
         'slug',
-        'category_id'
+        'type_id'
     ];
 
     public static function generateSlug(string $title) {
